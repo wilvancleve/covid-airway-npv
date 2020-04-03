@@ -38,9 +38,10 @@ ui <- dashboardPage(
                             numericInput("sens", "Sensitivity of Test (%)", 60, min = 10, max = 99),
                             numericInput("spec", "Specificity of Test (%)", 99, min = 50, max = 99)
                         ),
-                        box(align = "center",
-                            h3("Negative Predictive Value"),
-                            htmlOutput("npv"))
+                        box(
+                              title = "Outputs",
+                              align = "left",
+                              htmlOutput("npv"))
                     )
             ),
             
@@ -89,37 +90,13 @@ ui <- dashboardPage(
                        
             ),
             tabItem(tabName = "explanation",
-                    h4("NPV"),
-                    withMathJax(helpText("$$NPV = \\frac{Specificity * (100 - Prevalence))}{(((100 - Sensitivity) * Prevalence) + ((Specificity) * (100 - Prevalence)))}$$")),
-                    h4("SUMMARY"), 
-                    print("Based on the performance of UW’s RT-PCR test and current prevalence estimates of COVID 19 in the Seattle Metro area, \
-   this 'app' explains why it is reasonable to use droplet (rather than airborne) precautions when intubating a patient \
-   with a recent negative COVID-19 test."),
-                    h4("COVID-19 LAB TEST"), 
-                    p("First, the analytic sensitivity and specificity of the UW COVID RT-PCR test when a sample has virus (>499 RNA copies/ml) is excellent—> \
-   99% sensitivity and specificity according to package insert. \
-   These performance characteristics are obtained when an adequate sample is taken."),
-                    p("One clinical report from JAMA has found that \
-   the 'clinical sensitivity' which accounts for when a poor sample might be obtained—of nasal swabs to be 63%. \
-   (source: Detection of SARS-CoV-2 in Different Types of Clinical Specimens, https://jamanetwork.com/journals/jama/fullarticle/2762997)"),
-                    p("Given UW's strict nasal sampling protocol, and the lab’s lack of discordance between initial and follow up test results to date \
-   the clinical sensitivity of samples taken at UW Medicine is almost certainly much higher. \
-   Nevertheless, the default of this calculator is to use the “worst case scenario” 'clinical sensitivity’ observed in the JAMA paper."),
-                    h4("COVID IN SEATTLE - USED TO GENERATE NEGATIVE PREDICTIVE VALUE (NPV)"), 
-                    p(" To have high confidence in the COVID test result, it is necessary to understand the negative predictive value: \
-   i.e., probability that the disease is not present when the test is negative. \
-   NPV is separate from the intrinsic test performance and requires knowledge of the prevalence of COVID-19 in our community."),
-                    p("This enables us to answer how probable it is that our patient who tested COVID negative is truly free of disease. \
-   You can estimate what the community prevalence is based on local hospitalization rates for COVID and prior knowledge \
-   about how frequently hospitalization occurred in places (e.g. Wuhan) in  which COVID was widespread and testing was as well."),
-                    p(strong("Our rough estimate of current population prevalence in Washington state is 0.6% (UI: 0.41% - 0.82%) but this estimate is for all individuals, the majority of whom are symptomatic.")),
-                    p("We do not know with certainly the Seattle Metro prevalence of COVID-19; \
-   The process is currently underway through the Greater Seattle Coronavirus Assessment Network SCAN study."),
-                    h4("CONCLUSION"), 
-                    print("In the Seattle area, based on current estimates of prevalence, \
-   the chance of a false negative is < 0.5%, making use of standard (i.e., not airborne) \
-   precautions reasonable when doing an aerosol generating procedure on a recently tested COVID (-) patient.")
-                    
+                    fluidRow(
+                       column(width = 12,
+                              h3("Formula for Negative Predictive Value (NPV%)"),
+                              withMathJax("$$NPV\\% = \\frac{\\% \\; Specificity * (100 - \\% \\; Prevalence)}{((100 - \\% \\; Sensitivity) * \\% \\; Prevalence) + (\\% \\; Specificity * (100 - \\% \\; Prevalence))}$$"),
+                              includeMarkdown("explanation.md")
+                       ),
+               )
             )
         )
     )
@@ -134,7 +111,9 @@ server <- function(input, output) {
       num <- 100 - npv
       mult <- 1 / num
       denom = round(100 * mult,1)
-      HTML(paste0("<h3>",paste(npv,  collapse=" - "),"%<br>or<br><strong>1 in ", denom, " with SARS-CoV2"),"</strong></h3>")
+      output_prob <- ifelse(!is.finite(denom), "None", paste0("1 in ",denom))
+      HTML(paste0("<label class='control-label'>Negative Predictive Value: </label> ",npv,"%<br>",
+               "<label class='control-label'>Probability of SARS-CoV2:</label> ", output_prob))
    })
       
    output$sens_plot <- renderPlot({ hist(rbeta(n = 2000, input$sens_shape1, input$sens_shape2), main = "", xlab="")  }) 
