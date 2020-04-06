@@ -19,7 +19,8 @@ ui <- dashboardPage(
         menuItem("Explanation", tabName = "explanation")
     )),
     dashboardBody(
-        tabItems(
+       withMathJax(),
+       tabItems(
             # First tab content
             tabItem(tabName = "simple",
                     fluidRow(
@@ -49,8 +50,8 @@ ui <- dashboardPage(
                         column(width = 4,
                                box(
                                    title = "Sensitivity Estimate", width = NULL, status = "primary",
-                                   sliderInput("sens_shape1", "Beta Shape 1", value=9, min = 1, max = 20),
-                                   sliderInput("sens_shape2", "Beta Shape 2", value=5, min = 1, max = 10),
+                                   sliderInput("sens_shape1", label = '\\( \\alpha \\)', value=9, min = 1, max = 20),
+                                   sliderInput("sens_shape2", label = '\\( \\beta \\)', value=5, min = 1, max = 10),
                                    plotOutput("sens_plot", height="180"),
                                    htmlOutput("sens_dist")
                                )
@@ -59,8 +60,8 @@ ui <- dashboardPage(
                         column(width = 4,
                                box(
                                   title = "Specificity Estimate", width = NULL, status = "primary",
-                                  sliderInput("spec_shape1", "Beta Shape 1", value=25, min = 1, max = 30),
-                                  sliderInput("spec_shape2", "Beta Shape 2", value=0.5, min = 0, max = 5),
+                                  sliderInput("spec_shape1", label = '\\( \\alpha \\)', value=25, min = 1, max = 30),
+                                  sliderInput("spec_shape2", label = '\\( \\beta \\)', value=0.5, min = 0, max = 5),
                                   plotOutput("spec_plot", height="180"),
                                   htmlOutput("spec_dist")
                                )
@@ -69,8 +70,8 @@ ui <- dashboardPage(
                         column(width = 4,
                                box(
                                   title = "Prevalence Estimate", width = NULL, status = "primary",
-                                  sliderInput("prev_shape1", "Beta Shape 1", value=1, min = 0.1, max = 5),
-                                  sliderInput("prev_shape2", "Beta Shape 2", value=75, min = 50, max = 150),
+                                  sliderInput("prev_shape1", label = '\\( \\alpha \\)', value=1, min = 0.1, max = 5),
+                                  sliderInput("prev_shape2", label = '\\( \\beta \\)', value=75, min = 50, max = 150),
                                   plotOutput("prev_plot", height="180"),
                                   htmlOutput("prev_dist")
                                )
