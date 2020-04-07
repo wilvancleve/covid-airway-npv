@@ -9,7 +9,10 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinylogs)
 library(ggplot2)
+
+
 
 ui <- dashboardPage(
     dashboardHeader(title = "SARS-CoV-2 Airway Managenent NPV Calculator", titleWidth = 450),
@@ -106,6 +109,7 @@ ui <- dashboardPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
    
+   track_usage(storage_mode = store_sqlite(path = "logs/"))
     
    output$npv <- renderText({
       npv <- 100*((input$spec * (100 - as.numeric(input$prev)))/(((100 - input$sens) * as.numeric(input$prev)) + ((input$spec) * (100 - as.numeric(input$prev)))))
@@ -150,7 +154,7 @@ server <- function(input, output) {
        num <- 100 - m
        mult <- 1 / num
        denom = round(100 * mult,0)
-       print(quantiles)
+       
        uncert.1 <- round(100 * (1/(100-quantiles[1])),0)
        uncert.2 <- round(100 * (1/(100-quantiles[3])),0)
        
